@@ -1,0 +1,50 @@
+version: 2
+workflows:
+  version: 2
+  my-workflow:
+    jobs:
+      - build:
+          context: hexlabs-aws
+
+jobs:
+  build:
+    machine:
+      enabled: true
+    working_directory: ~/db-migrator
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - gradle-{{ checksum "build.gradle.kts" }}
+
+      - run:
+          name: Gradle Build
+          command: ./gradlew build -DBUILD_NUM=$CIRCLE_BUILD_NUM
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-{{ checksum "build.gradle.kts" }}
+
+      - run:
+          name: Install KloudFormation
+          command: curl -sSL install.kloudformation.hexlabs.io | bash -s -- -local
+
+      - restore_cache:
+          keys:
+            - kloudformation-{{ checksum "kloudformation.sh" }}
+      - run:
+          name: Deploy Stack
+          command:  ./kloudformation.sh -v 1.1.19 -m serverless@1.1.1 deploy -stack-name klouds-inventory -location build/libs/db-migrator-0.1.$CIRCLE_BUILD_NUM-uber.jar -bucket hexlabs-deployments -output output.properties
+
+      - store_artifacts:
+          path: template.yml
+
+      - store_artifacts:
+          path: output.properties
+
+      - save_cache:
+          paths:
+            - ~/.kloudformation
+          key: kloudformation-{{ checksum "kloudformation.sh" }}
