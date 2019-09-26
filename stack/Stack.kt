@@ -15,11 +15,11 @@ class Stack : StackBuilder {
             +"subnet-cfc11895",
             +"subnet-c38de28b"
         )
-        val securityGroup = securityGroup(+"DB Migrator SG") { vpcId(vpcId) }
+        val securityGroup = securityGroup(+"Database Migrator SG") { vpcId(vpcId) }
         val codeLocation = args.first()
-        serverless("db-migrator", "live", +"hexlabs-deployments") {
+        serverless("database-migrator", "live", +"hexlabs-deployments") {
             serverlessFunction(
-                    functionId = "db-migrator",
+                    functionId = "database-migrator",
                     codeLocationKey = +codeLocation,
                     handler = +"org.http4k.serverless.lambda.LambdaFunction::handle",
                     runtime = +"java8",
