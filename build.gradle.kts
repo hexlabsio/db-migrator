@@ -24,8 +24,6 @@ group = "io.klouds"
 val artifactId = "db-migrator"
 version = projectVersion
 
-val http4kVersion = "3.183.0"
-
 repositories {
     jcenter()
     mavenCentral()
@@ -47,17 +45,13 @@ sourceSets {
 
 val shadowJar by tasks.getting(ShadowJar::class) {
     archiveClassifier.set("uber")
-    manifest {
-        attributes(mapOf("Main-Class" to "io.klouds.migrator.RootHandlerKt"))
-    }
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(group = "org.jetbrains.exposed", name = "exposed", version = "0.17.3")
-    compile("org.http4k:http4k-core:$http4kVersion")
-    compile("org.http4k:http4k-format-jackson:$http4kVersion")
-    compile("org.http4k:http4k-serverless-lambda:$http4kVersion")
+    implementation("com.amazonaws:aws-lambda-java-core:1.1.0")
+    implementation("com.amazonaws:aws-lambda-java-events:1.3.0")
+    implementation("com.amazonaws:aws-java-sdk-bom:1.11.232")
     testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version = "1.3.21")
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "1.3.21")
     testRuntime(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.0.0")

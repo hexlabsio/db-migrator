@@ -1,29 +1,54 @@
-package io.klouds.migrator
+import com.amazonaws.services.lambda.runtime.Context
+import com.amazonaws.services.lambda.runtime.RequestHandler
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 
-import org.http4k.core.HttpHandler
-import org.http4k.core.Method
-import org.http4k.core.Response
-import org.http4k.core.Status
-import org.http4k.routing.RoutingHttpHandler
-import org.http4k.routing.bind
-import org.http4k.routing.routes
-import org.http4k.server.SunHttp
-import org.http4k.server.asServer
-import org.http4k.serverless.AppLoader
+class RootHandler : RequestHandler<Map<String, Any>, Any> {
 
-const val PORT = 8080
+    enum class RequestType { CREATE, UPDATE, DELETE }
+    enum class Status { SUCCESS, FAILED }
+    data class CustomResource(
+        val context: Context,
+        val responseUrl: String,
+        val logStreamName: String,
+        val stackId: String,
+        val requestId: String,
+        val requestType: RequestType,
+        val logicalResourceId: String
+    ) {
 
-fun main() {
-    Root(mapOf()).apiRoutes().asServer(SunHttp(PORT)).start()
-    println("Server started on port $PORT")
-}
+        fun publish(status: Status, data: String) {
+            (URL(responseUrl).openConnection() as HttpURLConnection).let {
+                it.doInput = true
+                it.requestMethod = "PUT"
+                val body = """{
+                |   "Status": "${status.name}",
+                |   "PhysicalResourceId": "$logStreamName",
+                |   "StackId": "$stackId",
+                |   "RequestId": "$requestId",
+                |   "LogicalResourceId", "$logicalResourceId",
+                |   "Data": $data
+                |}""".trimMargin()
+                OutputStreamWriter(it.outputStream).use { stream -> stream.write(body) }
+            }
+        }
 
-object RootApi : AppLoader {
-    override fun invoke(environment: Map<String, String>): HttpHandler = Root(environment).apiRoutes()
-}
+        companion object {
+            fun from(input: Map<String, Any>, context: Context) = CustomResource(
+                    context,
+                    input["ResponseURL"]!!.toString(),
+                    context.logStreamName,
+                    input["StackId"]?.toString() ?: "",
+                    input["RequestId"]?.toString() ?: "",
+                    RequestType.valueOf(input["RequestType"]!!.toString()),
+                    input["LogicalResourceId"]?.toString() ?: ""
+            )
+        }
+    }
 
-class Root(environment: Map<String, String>) {
-    fun apiRoutes(): RoutingHttpHandler = routes(
-            "/" bind Method.POST to { Response(Status.OK).body("Hello") }
-    )
+    override fun handleRequest(input: Map<String, Any>, context: Context) {
+        val customResource = CustomResource.from(input, context)
+        customResource.publish(Status.SUCCESS, """{ "Message": "Success" }""")
+    }
 }
