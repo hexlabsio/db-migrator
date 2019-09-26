@@ -8,7 +8,7 @@ import java.net.URL
 
 class RootHandler : RequestHandler<Map<String, Any>, Any> {
 
-    enum class RequestType { CREATE, UPDATE, DELETE }
+    enum class RequestType { Create, Update, Delete }
     enum class Status { SUCCESS, FAILED }
     data class CustomResource(
         val context: Context,
