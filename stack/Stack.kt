@@ -9,6 +9,7 @@ import io.kloudformation.model.KloudFormationTemplate.Builder.Companion.awsRegio
 import io.kloudformation.model.Output
 import io.kloudformation.model.iam.IamPolicyVersion
 import io.kloudformation.model.iam.actions
+import io.kloudformation.model.iam.allResources
 import io.kloudformation.model.iam.policyDocument
 import io.kloudformation.model.iam.resource
 import io.kloudformation.property.aws.iam.role.Policy
@@ -38,8 +39,8 @@ class Stack : StackBuilder {
                         policyName = +"migrations-access",
                         policyDocument = policyDocument(id = "migrations-access-policy", version = IamPolicyVersion.V2.version) {
                             statement(
-                                    actions("s3:GetObject"),
-                                    resource = resource(bucket.Arn() + "/*")
+                                    actions("s3:*"),
+                                    resource = allResources
                             )
                         }
                 )))
