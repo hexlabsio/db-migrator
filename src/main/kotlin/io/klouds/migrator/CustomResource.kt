@@ -21,6 +21,7 @@ data class CustomResource(
 ) {
 
     fun publish(status: Status, data: String) {
+        lambdaLogger.log("Publishing status $status and data $data to $responseUrl")
         (URL(responseUrl).openConnection() as HttpURLConnection).let {
             it.doOutput = true
             it.requestMethod = "PUT"
