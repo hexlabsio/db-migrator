@@ -39,6 +39,7 @@ data class CustomResource(
 
     private fun URL.put(body: String) = with(openConnection() as HttpURLConnection) {
         requestMethod = "PUT"
+        doOutput = true
         setRequestProperty("Content-Type", "application/json")
         OutputStreamWriter(outputStream).let {
             it.write(body)

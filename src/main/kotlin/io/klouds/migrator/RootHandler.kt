@@ -13,6 +13,7 @@ class RootHandler : RequestHandler<Map<String, Any>, Any> {
         try {
             customResource.publish(Status.SUCCESS, """{ "Message": "Success" }""")
         } catch (e: Exception) {
+            logger.log(e.message)
             customResource.publish(Status.FAILED, """{ "Message": "Failed" }""")
         }
         logger.log("End")
