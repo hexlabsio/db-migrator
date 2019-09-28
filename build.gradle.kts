@@ -51,6 +51,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.amazonaws:aws-lambda-java-core:1.1.0")
     implementation("com.amazonaws:aws-lambda-java-events:1.3.0")
+    implementation("com.amazonaws:aws-java-sdk-lambda:1.11.232")
     implementation("com.amazonaws:aws-java-sdk-bom:1.11.232")
     testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version = "1.3.21")
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "1.3.21")

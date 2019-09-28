@@ -1,5 +1,7 @@
 package io.klouds.migrator
 
+import com.amazonaws.services.lambda.AWSLambdaClient
+import com.amazonaws.services.lambda.model.InvokeRequest
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
 import java.lang.Exception
@@ -12,7 +14,15 @@ class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
         val customResource = CustomResource.from(input, context)
         try {
             val migrator = System.getenv("MIGRATOR_ARN")
+            val name = migrator.substringAfter("function:")
             logger.log("Invoking Migrator at $migrator")
+            val response = AWSLambdaClient.builder().build().invoke(
+                    InvokeRequest()
+                            .withFunctionName(name)
+                            .withPayload("""{ "a": "Hello" }""")
+            )
+            val output = String(response.payload.array())
+            logger.log("Received $output")
             customResource.publish(Status.SUCCESS, """{ "Message": "Success" }""")
         } catch (e: Exception) {
             logger.log(e.message)
