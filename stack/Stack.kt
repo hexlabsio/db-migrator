@@ -3,6 +3,7 @@ import io.hexlabs.kloudformation.module.serverless.serverless
 import io.kloudformation.KloudFormation
 import io.kloudformation.StackBuilder
 import io.kloudformation.json
+import io.kloudformation.model.Output
 import io.kloudformation.model.iam.IamPolicyVersion
 import io.kloudformation.model.iam.actions
 import io.kloudformation.model.iam.policyDocument
@@ -34,7 +35,7 @@ class Stack : StackBuilder {
                 }
             }
         }.functions.first().function
-        serverless("database-migrator-public", "live", +"hexlabs-deployments") {
+        val customResource = serverless("database-migrator-public", "live", +"hexlabs-deployments") {
             serverlessFunction(
                     functionId = "custom-resource",
                     codeLocationKey = +codeLocation,
@@ -59,6 +60,9 @@ class Stack : StackBuilder {
                     }
                 }
             }
-        }
+        }.functions.first().function
+        outputs(
+                "MigratorArn" to Output(customResource.Arn(), export = Output.Export(+"DBMigratorArn"))
+        )
     }
 }
