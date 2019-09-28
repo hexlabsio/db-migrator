@@ -33,7 +33,7 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
         while (zipEntry != null) {
             val newFile = File(destination, zipEntry.name)
             FileOutputStream(newFile).use {
-                it.write(zipInputStream.readAllBytes())
+                it.write(zipInputStream.readBytes())
             }
             zipEntry = zipInputStream.nextEntry
         }
