@@ -10,7 +10,7 @@ class RootHandler : RequestHandler<Map<String, Any>, Any> {
         val customResource = CustomResource.from(input, context)
         try {
             customResource.publish(Status.SUCCESS, """{ "Message": "Success" }""")
-        }  catch(e: Exception) {
+        } catch (e: Exception) {
             customResource.publish(Status.FAILED, """{ "Message": "Failed" }""")
         }
     }

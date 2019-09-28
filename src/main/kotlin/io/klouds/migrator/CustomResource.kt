@@ -11,13 +11,13 @@ enum class RequestType { Create, Update, Delete }
 enum class Status { SUCCESS, FAILED }
 
 data class CustomResource(
-        val lambdaLogger: LambdaLogger,
-        val responseUrl: String,
-        val logStreamName: String,
-        val stackId: String,
-        val requestId: String,
-        val requestType: RequestType,
-        val logicalResourceId: String
+    val lambdaLogger: LambdaLogger,
+    val responseUrl: String,
+    val logStreamName: String,
+    val stackId: String,
+    val requestId: String,
+    val requestType: RequestType,
+    val logicalResourceId: String
 ) {
 
     fun publish(status: Status, data: String) {
