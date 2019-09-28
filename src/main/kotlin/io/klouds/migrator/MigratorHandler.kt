@@ -17,7 +17,7 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
         context.logger.log("Migration Started")
         input.map { context.logger.log("${it.key}: ${it.value}") }
         context.logger.log("Downloading")
-        updateMigrations(AmazonS3Client.builder().build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
+        updateMigrations(AmazonS3Client.builder().enablePathStyleAccess().build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
         migrate(input["DatabaseURL"]!!.toString(), "master", "masterSecret")
         context.logger.log("Migration Ended")
     }
@@ -59,7 +59,7 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
 
 fun main() {
     MigratorHandler().let {
-        val inputStream = AmazonS3Client.builder().build().getObject("hexlabs-db-migrations", "klouds-inventory/migrations.zip").objectContent
+        val inputStream = AmazonS3Client.builder().enablePathStyleAccess().build().getObject("hexlabs-db-migrations", "klouds-inventory/migrations.zip").objectContent
         it.updateMigrations(inputStream)
         it.migrate("localhost:5432/postgres", "postgres", "postgres")
     }
