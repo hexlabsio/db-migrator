@@ -2,7 +2,10 @@ import io.hexlabs.kloudformation.module.serverless.Serverless
 import io.hexlabs.kloudformation.module.serverless.serverless
 import io.kloudformation.KloudFormation
 import io.kloudformation.StackBuilder
+import io.kloudformation.function.plus
 import io.kloudformation.json
+import io.kloudformation.model.KloudFormationTemplate.Builder.Companion.awsAccountId
+import io.kloudformation.model.KloudFormationTemplate.Builder.Companion.awsRegion
 import io.kloudformation.model.Output
 import io.kloudformation.model.iam.IamPolicyVersion
 import io.kloudformation.model.iam.actions
@@ -18,6 +21,17 @@ class Stack : StackBuilder {
         val securityGroup = securityGroup(+"Database Migrator SG") { vpcId(+"vpc-35efcd53") }
         val codeLocation = args.first()
         val privateFunction = serverless("db-migrator-private", "live", +"hexlabs-deployments") {
+            globalRole {
+                policies(this.policies.orEmpty() + listOf(Policy(
+                        policyName = +"secrets-access",
+                        policyDocument = policyDocument(id = "secret-access-policy", version = IamPolicyVersion.V2.version) {
+                            statement(
+                                    actions("secretsmanager:GetSecretValue"),
+                                    resource = resource(+"arn:aws:secretsmanager:" + awsRegion + ":" + awsAccountId + ":secret:db-*")
+                            )
+                        }
+                )))
+            }
             serverlessFunction(
                     functionId = "migrator",
                     codeLocationKey = +codeLocation,
@@ -62,8 +76,8 @@ class Stack : StackBuilder {
             }
         }.functions.first().function
         outputs(
-                "MigratorArn" to Output(customResource.Arn(), export = Output.Export(+"DBMigratorArn")),
-                "SecurityGroupId" to Output(securityGroup.GroupId(), export = Output.Export(+"DBMigratorSGID"))
+            "MigratorArn" to Output(customResource.Arn(), export = Output.Export(+"DBMigratorArn")),
+            "SecurityGroupId" to Output(securityGroup.GroupId(), export = Output.Export(+"DBMigratorSGID"))
         )
     }
 }
