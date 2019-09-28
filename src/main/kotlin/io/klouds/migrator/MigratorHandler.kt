@@ -1,5 +1,6 @@
 package io.klouds.migrator
 
+import com.amazonaws.regions.Regions
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.amazonaws.services.s3.AmazonS3Client
@@ -17,7 +18,7 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
         context.logger.log("Migration Started")
         input.map { context.logger.log("${it.key}: ${it.value}") }
         context.logger.log("Downloading")
-        updateMigrations(AmazonS3Client.builder().enablePathStyleAccess().build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
+        updateMigrations(AmazonS3Client.builder().withRegion(Regions.EU_WEST_1).enablePathStyleAccess().build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
         migrate(input["DatabaseURL"]!!.toString(), "master", "masterSecret")
         context.logger.log("Migration Ended")
     }
@@ -59,7 +60,8 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
 
 fun main() {
     MigratorHandler().let {
-        val inputStream = AmazonS3Client.builder().enablePathStyleAccess().build().getObject("hexlabs-db-migrations", "klouds-inventory/migrations.zip").objectContent
+        val inputStream = AmazonS3Client.builder().withRegion(Regions.EU_WEST_1)
+                .enablePathStyleAccess().build().getObject("hexlabs-db-migrations", "klouds-inventory/migrations.zip").objectContent
         it.updateMigrations(inputStream)
         it.migrate("localhost:5432/postgres", "postgres", "postgres")
     }
