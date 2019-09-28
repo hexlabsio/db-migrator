@@ -42,15 +42,15 @@ class Stack : StackBuilder {
                     handler = +"io.klouds.migrator.CustomResourceHandler",
                     runtime = +"java8"
             ) {
-                globalRole {
-                    policies(this.policies.orEmpty() + listOf(Policy(
-                            policyName = +"function-access",
-                            policyDocument = policyDocument(id = "function-access-policy", version = IamPolicyVersion.V2.version) {
-                                statement(actions("lambda:InvokeFunction"), resource = resource(privateFunction.Arn()))
-                            }
-                    )))
-                }
                 lambdaFunction {
+                    lambdaRole {
+                        policies(this.policies.orEmpty() + listOf(Policy(
+                                policyName = +"function-access",
+                                policyDocument = policyDocument(id = "function-access-policy", version = IamPolicyVersion.V2.version) {
+                                    statement(actions("lambda:InvokeFunction"), resource = resource(privateFunction.Arn()))
+                                }
+                        )))
+                    }
                     timeout(40)
                     memorySize(2048)
                     environment {
