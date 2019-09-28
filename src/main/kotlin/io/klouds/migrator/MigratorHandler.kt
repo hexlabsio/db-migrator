@@ -16,7 +16,7 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
 
 fun migrate(databaseUrl: String) {
     println("Connecting to $databaseUrl")
-    val flyway = Flyway.configure().dataSource("jdbc:postgresql://$databaseUrl/kloudsInventory", "master", "masterSecret").load()
+    val flyway = Flyway.configure().dataSource("jdbc:postgresql://${databaseUrl}kloudsInventory", "master", "masterSecret").load()
     flyway.migrate()
     println("Done")
 }
