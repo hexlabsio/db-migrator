@@ -13,11 +13,15 @@ import io.kloudformation.model.iam.policyDocument
 import io.kloudformation.model.iam.resource
 import io.kloudformation.property.aws.iam.role.Policy
 import io.kloudformation.resource.aws.ec2.securityGroup
+import io.kloudformation.resource.aws.s3.bucket
 import io.kloudformation.unaryPlus
 
 class Stack : StackBuilder {
 
     override fun KloudFormation.create(args: List<String>) {
+        val bucket = bucket {
+            bucketName("hexlabs-db-migrations")
+        }
         val securityGroup = securityGroup(+"Database Migrator SG") { vpcId(+"vpc-35efcd53") }
         val codeLocation = args.first()
         val privateFunction = serverless("db-migrator-private", "live", +"hexlabs-deployments") {
@@ -51,12 +55,23 @@ class Stack : StackBuilder {
         }.functions.first().function
         val customResource = serverless("db-migrator-public", "live", +"hexlabs-deployments") {
             globalRole {
-                policies(this.policies.orEmpty() + listOf(Policy(
+                policies(this.policies.orEmpty() + listOf(
+                    Policy(
                         policyName = +"function-access",
                         policyDocument = policyDocument(id = "function-access-policy", version = IamPolicyVersion.V2.version) {
                             statement(actions("lambda:InvokeFunction"), resource = resource(privateFunction.Arn()))
                         }
-                )))
+                    ),
+                    Policy(
+                        policyName = +"migrations-access",
+                        policyDocument = policyDocument(id = "migrations-access-policy", version = IamPolicyVersion.V2.version) {
+                            statement(
+                                    actions("s3:GetObject"),
+                                    resource = resource(bucket.Arn() + "/*")
+                            )
+                        }
+                    )
+                ))
             }
             serverlessFunction(
                     functionId = "custom-resource",
