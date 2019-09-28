@@ -17,7 +17,7 @@ class Stack : StackBuilder {
     override fun KloudFormation.create(args: List<String>) {
         val securityGroup = securityGroup(+"Database Migrator SG") { vpcId(+"vpc-35efcd53") }
         val codeLocation = args.first()
-        val privateFunction = serverless("database-migrator-private", "live", +"hexlabs-deployments") {
+        val privateFunction = serverless("db-migrator-private", "live", +"hexlabs-deployments") {
             serverlessFunction(
                     functionId = "migrator",
                     codeLocationKey = +codeLocation,
@@ -35,7 +35,7 @@ class Stack : StackBuilder {
                 }
             }
         }.functions.first().function
-        val customResource = serverless("database-migrator-public", "live", +"hexlabs-deployments") {
+        val customResource = serverless("db-migrator-public", "live", +"hexlabs-deployments") {
             serverlessFunction(
                     functionId = "custom-resource",
                     codeLocationKey = +codeLocation,
