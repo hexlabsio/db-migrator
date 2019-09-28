@@ -62,7 +62,8 @@ class Stack : StackBuilder {
             }
         }.functions.first().function
         outputs(
-                "MigratorArn" to Output(customResource.Arn(), export = Output.Export(+"DBMigratorArn"))
+                "MigratorArn" to Output(customResource.Arn(), export = Output.Export(+"DBMigratorArn")),
+                "SecurityGroupId" to Output(securityGroup.GroupId(), export = Output.Export(+"DBMigratorSGID"))
         )
     }
 }

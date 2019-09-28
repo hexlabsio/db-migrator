@@ -8,9 +8,24 @@ import java.lang.Exception
 
 class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
 
+    private val databaseUrlKey = "DatabaseURL"
+
+    data class ResourceProperties(val current: Map<String, String>, val old: Map<String, String>) {
+        operator fun get(key: String) = current[key]
+        companion object {
+            fun from(input: Map<String, Any>) = ResourceProperties(
+                    current = input["ResourceProperties"]!! as Map<String, String>,
+                    old = input["ResourceProperties"] as? Map<String, String> ?: emptyMap()
+            )
+        }
+    }
+
     override fun handleRequest(input: Map<String, Any>, context: Context) {
         val logger = context.logger
         input.forEach { (key, value) -> logger.log("Found: $key = $value") }
+        val resourceProperties = ResourceProperties.from(input)
+        val databaseUrl = resourceProperties[databaseUrlKey]
+        logger.log("DatabaseURL = $databaseUrl")
         val customResource = CustomResource.from(input, context)
         try {
             val migrator = System.getenv("MIGRATOR_ARN")
@@ -19,7 +34,7 @@ class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
             val response = AWSLambdaClient.builder().build().invoke(
                     InvokeRequest()
                             .withFunctionName(name)
-                            .withPayload("""{ "a": "Hello" }""")
+                            .withPayload("""{ "DatabaseURL": "$databaseUrl" }""")
             )
             val output = String(response.payload.array())
             logger.log("Received $output")

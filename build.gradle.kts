@@ -53,6 +53,8 @@ dependencies {
     implementation("com.amazonaws:aws-lambda-java-events:1.3.0")
     implementation("com.amazonaws:aws-java-sdk-lambda:1.11.232")
     implementation("com.amazonaws:aws-java-sdk-bom:1.11.232")
+    implementation("org.flywaydb:flyway-core:6.0.4")
+    runtime("org.postgresql:postgresql:42.2.7")
     testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version = "1.3.21")
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = "1.3.21")
     testRuntime(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.0.0")
