@@ -2,6 +2,8 @@ package io.klouds.migrator
 
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.LambdaLogger
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -22,10 +24,7 @@ data class CustomResource(
 
     fun publish(status: Status, data: String) {
         lambdaLogger.log("Publishing status $status and data $data to $responseUrl")
-        (URL(responseUrl).openConnection() as HttpURLConnection).let {
-            it.doOutput = true
-            it.requestMethod = "PUT"
-            val body = """{
+        val body = """{
                 |   "Status": "${status.name}",
                 |   "PhysicalResourceId": "$logStreamName",
                 |   "StackId": "$stackId",
@@ -33,8 +32,22 @@ data class CustomResource(
                 |   "LogicalResourceId", "$logicalResourceId",
                 |   "Data": $data
                 |}""".trimMargin()
-            OutputStreamWriter(it.outputStream).use { stream -> stream.write(body) }
+        lambdaLogger.log("Sending")
+        URL(responseUrl).put(body)
+        lambdaLogger.log("Finished")
+    }
+
+    private fun URL.put(body: String) = with(openConnection() as HttpURLConnection) {
+        requestMethod = "PUT"
+        setRequestProperty("Content-Type", "application/json")
+        OutputStreamWriter(outputStream).let {
+            it.write(body)
+            it.flush()
         }
+        lambdaLogger.log("URL : $url")
+        lambdaLogger.log("BODY : $body")
+        lambdaLogger.log("Response Code : $responseCode")
+        BufferedReader(InputStreamReader(inputStream)).readText()
     }
 
     companion object {

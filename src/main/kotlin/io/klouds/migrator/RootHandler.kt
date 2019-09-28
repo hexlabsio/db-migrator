@@ -15,5 +15,6 @@ class RootHandler : RequestHandler<Map<String, Any>, Any> {
         } catch (e: Exception) {
             customResource.publish(Status.FAILED, """{ "Message": "Failed" }""")
         }
+        logger.log("End")
     }
 }
