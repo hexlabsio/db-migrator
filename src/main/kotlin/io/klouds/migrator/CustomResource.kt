@@ -29,7 +29,7 @@ data class CustomResource(
                 |   "PhysicalResourceId": "$logStreamName",
                 |   "StackId": "$stackId",
                 |   "RequestId": "$requestId",
-                |   "LogicalResourceId", "$logicalResourceId",
+                |   "LogicalResourceId": "$logicalResourceId",
                 |   "Data": $data
                 |}""".trimMargin()
         lambdaLogger.log("Sending")
