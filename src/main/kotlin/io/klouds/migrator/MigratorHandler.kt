@@ -16,12 +16,14 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
     override fun handleRequest(input: Map<String, Any>, context: Context) {
         context.logger.log("Migration Started")
         input.map { context.logger.log("${it.key}: ${it.value}") }
+        context.logger.log("Downloading")
         updateMigrations(AmazonS3Client.builder().build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
         migrate(input["DatabaseURL"]!!.toString(), "master", "masterSecret")
         context.logger.log("Migration Ended")
     }
 
     fun updateMigrations(inputStream: InputStream) {
+        println("Updating tmp")
         val zipInputStream = ZipInputStream(inputStream)
         val destination = File(migrationLocation)
         if (destination.exists()) {
@@ -30,6 +32,7 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
         destination.mkdirs()
         var zipEntry = zipInputStream.nextEntry
         while (zipEntry != null) {
+            println("ahahahah")
             val newFile = File(destination, zipEntry.name)
             FileOutputStream(newFile).use {
                 it.write(zipInputStream.readBytes())
