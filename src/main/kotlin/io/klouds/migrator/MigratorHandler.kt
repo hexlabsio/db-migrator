@@ -7,7 +7,6 @@ import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.Location
 import org.flywaydb.core.api.Location.FILESYSTEM_PREFIX
 import java.io.File
-import java.io.FileInputStream
 import java.util.zip.ZipInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -57,7 +56,8 @@ class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
 
 fun main() {
     MigratorHandler().let {
-        it.updateMigrations(FileInputStream("/Users/chrisbarbour/Code/db-migrator/src/main/resources/db/migration/migrations.zip"))
+        val inputStream = AmazonS3Client.builder().build().getObject("hexlabs-db-migrations", "klouds-inventory/migrations.zip").objectContent
+        it.updateMigrations(inputStream)
         it.migrate("localhost:5432/postgres", "postgres", "postgres")
     }
 }

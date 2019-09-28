@@ -34,6 +34,14 @@ class Stack : StackBuilder {
                                     resource = resource(+"arn:aws:secretsmanager:" + awsRegion + ":" + awsAccountId + ":secret:db-*")
                             )
                         }
+                ), Policy(
+                        policyName = +"migrations-access",
+                        policyDocument = policyDocument(id = "migrations-access-policy", version = IamPolicyVersion.V2.version) {
+                            statement(
+                                    actions("s3:GetObject"),
+                                    resource = resource(bucket.Arn() + "/*")
+                            )
+                        }
                 )))
             }
             serverlessFunction(
@@ -60,15 +68,6 @@ class Stack : StackBuilder {
                         policyName = +"function-access",
                         policyDocument = policyDocument(id = "function-access-policy", version = IamPolicyVersion.V2.version) {
                             statement(actions("lambda:InvokeFunction"), resource = resource(privateFunction.Arn()))
-                        }
-                    ),
-                    Policy(
-                        policyName = +"migrations-access",
-                        policyDocument = policyDocument(id = "migrations-access-policy", version = IamPolicyVersion.V2.version) {
-                            statement(
-                                    actions("s3:GetObject"),
-                                    resource = resource(bucket.Arn() + "/*")
-                            )
                         }
                     )
                 ))
