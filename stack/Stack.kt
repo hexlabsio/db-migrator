@@ -36,6 +36,14 @@ class Stack : StackBuilder {
             }
         }.functions.first().function
         val customResource = serverless("db-migrator-public", "live", +"hexlabs-deployments") {
+            globalRole {
+                policies(this.policies.orEmpty() + listOf(Policy(
+                        policyName = +"function-access",
+                        policyDocument = policyDocument(id = "function-access-policy", version = IamPolicyVersion.V2.version) {
+                            statement(actions("lambda:InvokeFunction"), resource = resource(privateFunction.Arn()))
+                        }
+                )))
+            }
             serverlessFunction(
                     functionId = "custom-resource",
                     codeLocationKey = +codeLocation,
@@ -43,14 +51,6 @@ class Stack : StackBuilder {
                     runtime = +"java8"
             ) {
                 lambdaFunction {
-                    lambdaRole {
-                        policies(this.policies.orEmpty() + listOf(Policy(
-                                policyName = +"function-access",
-                                policyDocument = policyDocument(id = "function-access-policy", version = IamPolicyVersion.V2.version) {
-                                    statement(actions("lambda:InvokeFunction"), resource = resource(privateFunction.Arn()))
-                                }
-                        )))
-                    }
                     timeout(40)
                     memorySize(2048)
                     environment {
