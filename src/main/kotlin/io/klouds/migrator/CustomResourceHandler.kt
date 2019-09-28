@@ -9,6 +9,8 @@ import java.lang.Exception
 class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
 
     private val databaseUrlKey = "DatabaseURL"
+    private val migrationBucketKey = "MigrationBucket"
+    private val migrationKeyKey = "MigrationKey"
 
     data class ResourceProperties(val current: Map<String, String>, val old: Map<String, String>) {
         operator fun get(key: String) = current[key]
@@ -22,9 +24,10 @@ class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
 
     override fun handleRequest(input: Map<String, Any>, context: Context) {
         val logger = context.logger
-        input.forEach { (key, value) -> logger.log("Found: $key = $value") }
         val resourceProperties = ResourceProperties.from(input)
         val databaseUrl = resourceProperties[databaseUrlKey]
+        val migrationBucket = resourceProperties[migrationBucketKey]
+        val migrationKey = resourceProperties[migrationKeyKey]
         logger.log("DatabaseURL = $databaseUrl")
         val customResource = CustomResource.from(input, context)
         try {
@@ -34,7 +37,7 @@ class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
             val response = AWSLambdaClient.builder().build().invoke(
                     InvokeRequest()
                             .withFunctionName(name)
-                            .withPayload("""{ "DatabaseURL": "$databaseUrl" }""")
+                            .withPayload("""{ "DatabaseURL": "$databaseUrl", "Bucket": "$migrationBucket", "Key": "$migrationKey" }""")
             )
             val output = String(response.payload.array())
             logger.log("Received $output")

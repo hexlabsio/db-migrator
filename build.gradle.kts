@@ -52,6 +52,7 @@ dependencies {
     implementation("com.amazonaws:aws-lambda-java-core:1.1.0")
     implementation("com.amazonaws:aws-lambda-java-events:1.3.0")
     implementation("com.amazonaws:aws-java-sdk-lambda:1.11.232")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.11.232")
     implementation("com.amazonaws:aws-java-sdk-bom:1.11.232")
     implementation("org.flywaydb:flyway-core:6.0.4")
     runtime("org.postgresql:postgresql:42.2.7")
