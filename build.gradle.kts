@@ -49,6 +49,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     implementation("com.amazonaws:aws-lambda-java-core:1.1.0")
     implementation("com.amazonaws:aws-lambda-java-events:1.3.0")
     implementation("com.amazonaws:aws-java-sdk-lambda:1.11.232")

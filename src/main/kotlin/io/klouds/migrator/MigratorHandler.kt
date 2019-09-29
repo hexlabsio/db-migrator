@@ -13,6 +13,9 @@ import java.io.FileOutputStream
 import java.io.InputStream
 
 data class MigrationRequest(val bucket: String, val key: String, val databaseUrl: String)
+data class MigrationResponse(val success: Boolean)
+
+// val a = ObjectMapper().readValue("""{ "bucket": "abc", "key": "DAFDS", "databaseUrl": "Adfas"}""", MigrationRequest::class.java)
 
 class MigratorHandler : RequestHandler<MigrationRequest, Any> {
 
@@ -62,6 +65,11 @@ class MigratorHandler : RequestHandler<MigrationRequest, Any> {
     companion object {
         val migrationLocation = "/tmp/db/migration"
     }
+}
+
+val migrationHandler = lambdaHandler { request: MigrationRequest ->
+    println(request.toString())
+    MigrationResponse(true)
 }
 
 fun main() {
