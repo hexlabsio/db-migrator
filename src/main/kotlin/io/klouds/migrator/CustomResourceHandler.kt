@@ -37,7 +37,7 @@ class CustomResourceHandler : RequestHandler<Map<String, Any>, Any> {
             val response = AWSLambdaClient.builder().build().invoke(
                     InvokeRequest()
                             .withFunctionName(name)
-                            .withPayload("""{ "DatabaseURL": "$databaseUrl", "Bucket": "$migrationBucket", "Key": "$migrationKey" }""")
+                            .withPayload("""{ "databaseUrl": "$databaseUrl", "bucket": "$migrationBucket", "key": "$migrationKey" }""")
             )
             val output = String(response.payload.array())
             logger.log("Received $output")

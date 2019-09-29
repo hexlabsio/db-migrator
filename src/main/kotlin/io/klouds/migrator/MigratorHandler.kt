@@ -12,14 +12,20 @@ import java.util.zip.ZipInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 
-class MigratorHandler : RequestHandler<Map<String, Any>, Any> {
+data class MigrationRequest(val bucket: String, val key: String, val databaseUrl: String)
 
-    override fun handleRequest(input: Map<String, Any>, context: Context) {
+class MigratorHandler : RequestHandler<MigrationRequest, Any> {
+
+    override fun handleRequest(input: MigrationRequest, context: Context) {
         context.logger.log("Migration Started")
-        input.map { context.logger.log("${it.key}: ${it.value}") }
+        println(input)
         context.logger.log("Downloading")
-        updateMigrations(AmazonS3Client.builder().withRegion(Regions.EU_WEST_1).enablePathStyleAccess().build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
-        migrate(input["DatabaseURL"]!!.toString(), "master", "masterSecret")
+//        updateMigrations(AmazonS3Client.builder()
+//                .withRegion(Regions.EU_WEST_1)
+//                .enablePathStyleAccess()
+//                .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("com.amazonaws.eu-west-1.s3", "eu-west-1"))
+//                .build().getObject(input["Bucket"]!!.toString(), input["Key"]!!.toString()).objectContent)
+//        migrate(input["DatabaseURL"]!!.toString(), "master", "masterSecret")
         context.logger.log("Migration Ended")
     }
 
