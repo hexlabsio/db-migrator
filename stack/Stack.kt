@@ -76,7 +76,7 @@ class Stack : StackBuilder {
             serverlessFunction(
                     functionId = "custom-resource",
                     codeLocationKey = +codeLocation,
-                    handler = +"io.klouds.migrator.CustomResourceHandler",
+                    handler = +"io.klouds.migrator.custom.CustomResourceHandler",
                     runtime = +"java8"
             ) {
                 lambdaFunction {

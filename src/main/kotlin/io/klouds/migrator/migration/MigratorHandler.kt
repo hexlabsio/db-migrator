@@ -3,8 +3,8 @@ package io.klouds.migrator.migration
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.s3.AmazonS3Client
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.klouds.migrator.Handler
+import io.klouds.migrator.defaultTransform
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.FlywayException
 import org.flywaydb.core.api.Location
@@ -18,7 +18,7 @@ class MigratorHandler(
             else -> "postgres"
         }
     }
-) : Handler<MigrationRequest, MigrationResponse>(objectMapper::readValue) {
+) : Handler<MigrationRequest, MigrationResponse>(defaultTransform()) {
     override fun Context.handle(request: MigrationRequest): MigrationResponse {
         logger.log("Downloading ${request.bucket}/${request.key} into $MIGRATION_DIR")
         downloader.download(request.bucket, request.key, MIGRATION_DIR)
