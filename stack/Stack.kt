@@ -48,7 +48,7 @@ class Stack : StackBuilder {
             serverlessFunction(
                     functionId = "migrator",
                     codeLocationKey = +codeLocation,
-                    handler = +"io.klouds.migrator.MigratorHandler",
+                    handler = +"io.klouds.migrator.migration.MigratorHandler",
                     runtime = +"java8",
                     privateConfig = Serverless.PrivateConfig(+listOf(securityGroup.GroupId()), +listOf(
                             +"subnet-a9d34ccf",
