@@ -1,10 +1,7 @@
 package io.klouds.migrator.custom
 
-import com.amazonaws.services.lambda.AWSLambdaClient
-import com.amazonaws.services.lambda.model.InvokeRequest
 import com.amazonaws.services.lambda.runtime.Context
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.klouds.migrator.CallbackHandler
 import io.klouds.migrator.Handler.Companion.objectMapper
 import io.klouds.migrator.defaultTransform
@@ -21,7 +18,9 @@ data class ResponseMessage(
     @JsonProperty("Migrations") val migrations: Int
 )
 
-class CustomResourceHandler : CallbackHandler<CustomResourceRequest>(defaultTransform()) {
+class CustomResourceHandler(
+    val invoker: Invoker<MigrationRequest, MigrationResponse> = MigrationLambdaInvoker()
+) : CallbackHandler<CustomResourceRequest>(defaultTransform()) {
     override fun Context.handle(request: CustomResourceRequest) {
         fun customResourceResponse(status: Status, migrations: Int, errorMessage: String?) = CustomResourceResponse(
                 status, logStreamName, request.stackId, request.requestId, request.logicalResourceId,
@@ -33,12 +32,7 @@ class CustomResourceHandler : CallbackHandler<CustomResourceRequest>(defaultTran
             logger.log("Invoking Migrator at $migrator")
             val properties = request.resourceProperties
             val migrationRequest = MigrationRequest(properties.migrationBucket, properties.migrationKey, properties.databaseUrl, "master")
-            val migrationResponse = AWSLambdaClient.builder().build().invoke(
-                    InvokeRequest()
-                            .withFunctionName(name)
-                            .withPayload(objectMapper.writeValueAsString(migrationRequest))
-            )
-            val output = objectMapper.readValue<MigrationResponse>(String(migrationResponse.payload.array()))
+            val output = invoker.invoke(name, migrationRequest)
             URL(request.responseUrl).put(objectMapper.writeValueAsString(customResourceResponse(
                     if (output.success) Status.SUCCESS else Status.FAILED,
                     output.migrations,
