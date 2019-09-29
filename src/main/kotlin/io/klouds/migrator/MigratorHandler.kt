@@ -1,9 +1,8 @@
 package io.klouds.migrator
 
-import com.amazonaws.regions.Regions
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
-import com.amazonaws.services.s3.AmazonS3Client
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.Location
 import org.flywaydb.core.api.Location.FILESYSTEM_PREFIX
@@ -17,7 +16,7 @@ data class MigrationResponse(val success: Boolean)
 
 // val a = ObjectMapper().readValue("""{ "bucket": "abc", "key": "DAFDS", "databaseUrl": "Adfas"}""", MigrationRequest::class.java)
 
-class MigratorHandler : RequestHandler<MigrationRequest, Any> {
+class MigratorHandler2 : RequestHandler<MigrationRequest, Any> {
 
     override fun handleRequest(input: MigrationRequest, context: Context) {
         context.logger.log("Migration Started")
@@ -64,19 +63,16 @@ class MigratorHandler : RequestHandler<MigrationRequest, Any> {
 
     companion object {
         val migrationLocation = "/tmp/db/migration"
+//        val migrationHandler = lambdaHandler { request: MigrationRequest ->
+//            println(request.toString())
+//            MigrationResponse(true)
+//        }
     }
 }
 
-val migrationHandler = lambdaHandler { request: MigrationRequest ->
-    println(request.toString())
-    MigrationResponse(true)
-}
-
-fun main() {
-    MigratorHandler().let {
-        val inputStream = AmazonS3Client.builder().withRegion(Regions.EU_WEST_1)
-                .enablePathStyleAccess().build().getObject("hexlabs-db-migrations", "klouds-inventory/migrations.zip").objectContent
-        it.updateMigrations(inputStream)
-        it.migrate("localhost:5432/postgres", "postgres", "postgres")
+class MigratorHandler : Handler<MigrationRequest, MigrationResponse>(objectMapper::readValue) {
+    override fun Context.handle(request: MigrationRequest): MigrationResponse {
+        println(request.toString())
+        return MigrationResponse(true)
     }
 }
