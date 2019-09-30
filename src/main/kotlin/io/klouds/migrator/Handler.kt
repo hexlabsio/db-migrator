@@ -2,6 +2,7 @@ package io.klouds.migrator
 
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.InputStream
@@ -15,7 +16,7 @@ abstract class Handler<Request, Response>(
     }
     abstract fun Context.handle(request: Request): Response
     companion object {
-        val objectMapper = jacksonObjectMapper()
+        val objectMapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 }
 
