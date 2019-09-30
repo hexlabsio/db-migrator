@@ -25,7 +25,7 @@ class CustomResourceHandler(
         } else {
             try {
                 val result = migrate(request.asMigrationRequest())
-                eventPublisher.publish(response(result.success, result.migrations, result.errorMessage), to = responseUrl)
+                eventPublisher.publish(response(result.success, result.migrations, result.information), to = responseUrl)
             } catch (e: Exception) {
                 logger.log(e.message)
                 eventPublisher.publish(response(Status.FAILED, 0, e.message), to = responseUrl)

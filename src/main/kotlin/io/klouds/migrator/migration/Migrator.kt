@@ -25,7 +25,11 @@ class FlywayMigrator(
     override fun migrate(dataSourceUrl: String, username: String, password: String) =
         flyway(dataSourceUrl, username, password).startMigration()
                 .let { (migrations, exception) ->
-                    MigrationResponse(if (exception == null) Status.SUCCESS else Status.FAILED, migrations, exception?.message)
+                    if (exception != null) {
+                        MigrationResponse(Status.FAILED, migrations, exception.message)
+                    } else {
+                        MigrationResponse(Status.SUCCESS, migrations, "Invoked $migrations Migration(s)")
+                    }
                 }
 
     override fun delete(dataSourceUrl: String, username: String, password: String): MigrationResponse {
