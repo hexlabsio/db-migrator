@@ -1,3 +1,5 @@
 package io.klouds.migrator.migration
 
-data class MigrationResponse(val success: Boolean, val migrations: Int, val errorMessage: String?)
+import io.klouds.migrator.custom.Status
+
+data class MigrationResponse(val success: Status, val migrations: Int, val errorMessage: String?)

@@ -1,9 +1,8 @@
 package io.klouds.migrator.migration
 
-import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.lambda.runtime.Context
-import com.amazonaws.services.s3.AmazonS3Client
 import io.klouds.migrator.Handler
+import io.klouds.migrator.custom.Status
 import io.klouds.migrator.defaultTransform
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.FlywayException
@@ -27,7 +26,7 @@ class MigratorHandler(
             .locations(Location("$FILESYSTEM_PREFIX$MIGRATION_DIR"))
             .dataSource("jdbc:postgresql://${request.databaseUrl}", request.username, secretFinder.secretFor(request.username))
             .load().startMigration().let { (migrations, exception) ->
-                MigrationResponse(exception == null, migrations, exception?.message)
+                MigrationResponse(if (exception == null) Status.SUCCESS else Status.FAILED, migrations, exception?.message)
             }
     }
 
@@ -36,11 +35,6 @@ class MigratorHandler(
     }
 
     companion object {
-        private const val REGION = "eu-west-1"
         private const val MIGRATION_DIR = "/tmp/db/migration"
-        private fun vpcS3Client() = AmazonS3Client.builder()
-            .enablePathStyleAccess()
-            .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("com.amazonaws.eu-west-1.s3", REGION))
-            .build()
     }
 }

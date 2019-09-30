@@ -57,8 +57,8 @@ class Stack : StackBuilder {
                     ))
             ) {
                 lambdaFunction {
-                    timeout(30)
-                    memorySize(1024)
+                    timeout(300)
+                    memorySize(3008)
                 }
             }
         }.functions.first().function

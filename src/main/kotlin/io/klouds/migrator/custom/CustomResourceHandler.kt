@@ -3,57 +3,50 @@ package io.klouds.migrator.custom
 import com.amazonaws.services.lambda.runtime.Context
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.klouds.migrator.CallbackHandler
-import io.klouds.migrator.Handler.Companion.objectMapper
 import io.klouds.migrator.defaultTransform
 import io.klouds.migrator.migration.MigrationRequest
 import io.klouds.migrator.migration.MigrationResponse
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
 import java.lang.Exception
-import java.net.HttpURLConnection
-import java.net.URL
 
 data class ResponseMessage(
     @JsonProperty("Migrations") val migrations: Int
 )
 
 class CustomResourceHandler(
-    val invoker: Invoker<MigrationRequest, MigrationResponse> = MigrationLambdaInvoker()
+    val invoker: Invoker<MigrationRequest, MigrationResponse> = MigrationLambdaInvoker(),
+    val eventPublisher: EventPublisher<CustomResourceResponse<ResponseMessage>, String> = StackEventPublisher()
 ) : CallbackHandler<CustomResourceRequest>(defaultTransform()) {
+
     override fun Context.handle(request: CustomResourceRequest) {
-        fun customResourceResponse(status: Status, migrations: Int, errorMessage: String?) = CustomResourceResponse(
+        val response = responseBuilderFor(request)
+        val responseUrl = request.responseUrl
+        try {
+            val result = migrate(request.resourceProperties.asMigrationRequest())
+            eventPublisher.publish(response(result.success, result.migrations, result.errorMessage), to = responseUrl)
+        } catch (e: Exception) {
+            logger.log(e.message)
+            eventPublisher.publish(response(Status.FAILED, 0, e.message), to = responseUrl)
+        }
+    }
+
+    private fun Context.responseBuilderFor(request: CustomResourceRequest) = { status: Status, migrations: Int, errorMessage: String? ->
+        CustomResourceResponse(
                 status, logStreamName, request.stackId, request.requestId, request.logicalResourceId,
                 ResponseMessage(migrations), errorMessage
         )
-        try {
-            val migrator = System.getenv("MIGRATOR_ARN")
-            val name = migrator.substringAfter("function:")
-            logger.log("Invoking Migrator at $migrator")
-            val properties = request.resourceProperties
-            val migrationRequest = MigrationRequest(properties.migrationBucket, properties.migrationKey, properties.databaseUrl, "master")
-            val output = invoker.invoke(name, migrationRequest)
-            URL(request.responseUrl).put(objectMapper.writeValueAsString(customResourceResponse(
-                    if (output.success) Status.SUCCESS else Status.FAILED,
-                    output.migrations,
-                    output.errorMessage
-            )))
-        } catch (e: Exception) {
-            logger.log(e.message)
-            URL(request.responseUrl).put(objectMapper.writeValueAsString(customResourceResponse(
-                    Status.FAILED, 0, e.message
-            )))
-        }
     }
-}
 
-private fun URL.put(body: String) = with(openConnection() as HttpURLConnection) {
-    requestMethod = "PUT"
-    doOutput = true
-    setRequestProperty("Content-Type", "application/json")
-    OutputStreamWriter(outputStream).let {
-        it.write(body)
-        it.flush()
+    private fun ResourceProperties.asMigrationRequest() =
+            MigrationRequest(migrationBucket, migrationKey, databaseUrl, "master")
+
+    private fun Context.migrate(request: MigrationRequest): MigrationResponse {
+        logger.log("Migration Started")
+        val result = invoker.invoke(MIGRATOR_FUNCTION, request)
+        logger.log("Migration Complete")
+        return result
     }
-    BufferedReader(InputStreamReader(inputStream)).readText()
+
+    companion object {
+        val MIGRATOR_FUNCTION = System.getenv("MIGRATOR_ARN").substringAfter("function:")
+    }
 }
