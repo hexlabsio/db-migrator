@@ -11,7 +11,7 @@ import org.flywaydb.core.api.Location
 import org.flywaydb.core.api.Location.FILESYSTEM_PREFIX
 
 class MigratorHandler(
-    private val downloader: Downloader = S3ZipDownloader(vpcS3Client()),
+    private val downloader: Downloader = S3ZipDownloader(),
     private val secretFinder: SecretFinder = object : SecretFinder {
         override fun secretFor(key: String) = when (key) {
             "master" -> "masterSecret"
