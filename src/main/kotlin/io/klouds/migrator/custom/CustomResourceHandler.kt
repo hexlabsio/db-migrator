@@ -21,7 +21,7 @@ class CustomResourceHandler(
         val response = responseBuilderFor(request)
         val responseUrl = request.responseUrl
         try {
-            val result = migrate(request.resourceProperties.asMigrationRequest())
+            val result = migrate(request.asMigrationRequest())
             eventPublisher.publish(response(result.success, result.migrations, result.errorMessage), to = responseUrl)
         } catch (e: Exception) {
             logger.log(e.message)
@@ -37,8 +37,9 @@ class CustomResourceHandler(
         )
     }
 
-    private fun ResourceProperties.asMigrationRequest() =
-            MigrationRequest(migrationBucket, migrationKey, databaseUrl, "master")
+    private fun CustomResourceRequest.asMigrationRequest() = with(resourceProperties) {
+        MigrationRequest(migrationBucket, migrationKey, databaseUrl, "master", requestType == RequestType.Delete)
+    }
 
     private fun Context.migrate(request: MigrationRequest): MigrationResponse {
         logger.log("Migration Started")

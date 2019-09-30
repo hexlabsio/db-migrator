@@ -29,6 +29,10 @@ class MigratorHandlerTest {
             this.pssword = password
             return fakeResponse
         }
+
+        override fun delete(dataSourceUrl: String, username: String, password: String): MigrationResponse {
+            return fakeResponse
+        }
     }
 
     @Test

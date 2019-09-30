@@ -8,19 +8,30 @@ import org.flywaydb.core.api.Location.FILESYSTEM_PREFIX
 
 interface Migrator<Result> {
     fun migrate(dataSourceUrl: String, username: String, password: String): Result
+    fun delete(dataSourceUrl: String, username: String, password: String): Result
 }
 
 class FlywayMigrator(
     private val jdbcUrlFor: (String) -> String = { "jdbc:postgresql://$it" },
     private val migrationsDirectory: String = MIGRATIONS_DIR
 ) : Migrator<MigrationResponse> {
+
+    private fun flyway(dataSourceUrl: String, username: String, password: String) =
+        Flyway.configure()
+        .locations(Location("$FILESYSTEM_PREFIX$migrationsDirectory"))
+        .dataSource(jdbcUrlFor(dataSourceUrl), username, password)
+        .load()
+
     override fun migrate(dataSourceUrl: String, username: String, password: String) =
-            Flyway.configure()
-                .locations(Location("$FILESYSTEM_PREFIX$migrationsDirectory"))
-                .dataSource(jdbcUrlFor(dataSourceUrl), username, password)
-                .load().startMigration().let { (migrations, exception) ->
+        flyway(dataSourceUrl, username, password).startMigration()
+                .let { (migrations, exception) ->
                     MigrationResponse(if (exception == null) Status.SUCCESS else Status.FAILED, migrations, exception?.message)
                 }
+
+    override fun delete(dataSourceUrl: String, username: String, password: String): MigrationResponse {
+        flyway(dataSourceUrl, username, password).clean()
+        return MigrationResponse(Status.SUCCESS, 0)
+    }
 
     companion object {
         const val MIGRATIONS_DIR = "/tmp/db/migration"

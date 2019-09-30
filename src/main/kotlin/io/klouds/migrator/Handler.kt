@@ -16,7 +16,8 @@ abstract class Handler<Request, Response>(
     }
     abstract fun Context.handle(request: Request): Response
     companion object {
-        val objectMapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        val objectMapper = jacksonObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 }
 

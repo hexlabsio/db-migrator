@@ -1,5 +1,6 @@
 package io.klouds.migrator.custom
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class CustomResourceResponse<T>(
@@ -9,5 +10,5 @@ data class CustomResourceResponse<T>(
     @JsonProperty("RequestId") val requestId: String,
     @JsonProperty("LogicalResourceId") val logicalResourceId: String,
     @JsonProperty("Data") val data: T,
-    @JsonProperty("Reason") val reason: String?
+    @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("Reason") val reason: String?
 )
