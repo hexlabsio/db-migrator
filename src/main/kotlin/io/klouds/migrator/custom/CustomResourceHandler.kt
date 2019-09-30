@@ -22,13 +22,14 @@ class CustomResourceHandler(
         val responseUrl = request.responseUrl
         if (request.requestType == RequestType.Delete) {
             eventPublisher.publish(response(Status.SUCCESS, 0, null), to = responseUrl)
-        }
-        try {
-            val result = migrate(request.asMigrationRequest())
-            eventPublisher.publish(response(result.success, result.migrations, result.errorMessage), to = responseUrl)
-        } catch (e: Exception) {
-            logger.log(e.message)
-            eventPublisher.publish(response(Status.FAILED, 0, e.message), to = responseUrl)
+        } else {
+            try {
+                val result = migrate(request.asMigrationRequest())
+                eventPublisher.publish(response(result.success, result.migrations, result.errorMessage), to = responseUrl)
+            } catch (e: Exception) {
+                logger.log(e.message)
+                eventPublisher.publish(response(Status.FAILED, 0, e.message), to = responseUrl)
+            }
         }
         return "Done"
     }
