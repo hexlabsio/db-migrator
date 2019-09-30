@@ -1,7 +1,6 @@
 package io.klouds.migrator
 
 import com.amazonaws.services.lambda.runtime.Context
-import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -21,13 +20,11 @@ abstract class Handler<Request, Response>(
 }
 
 abstract class CallbackHandler<Request>(
-    val requestTransform: (InputStream) -> Request
-) : RequestHandler<InputStream, String> {
-    override fun handleRequest(input: InputStream, context: Context): String {
-        with(context) { handle(requestTransform(input)) }
-        return "Done"
+    requestTransform: (InputStream) -> Request
+) : Handler<Request, String>(requestTransform) {
+    override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
+        output.write(with(context) { handle(requestTransform(input)) }.toByteArray())
     }
-    abstract fun Context.handle(request: Request)
 }
 
 inline fun <reified T> defaultTransform(): (InputStream) -> T = Handler.objectMapper::readValue

@@ -17,7 +17,7 @@ class CustomResourceHandler(
     val eventPublisher: EventPublisher<CustomResourceResponse<ResponseMessage>, String> = StackEventPublisher()
 ) : CallbackHandler<CustomResourceRequest>(defaultTransform()) {
 
-    override fun Context.handle(request: CustomResourceRequest) {
+    override fun Context.handle(request: CustomResourceRequest): String {
         val response = responseBuilderFor(request)
         val responseUrl = request.responseUrl
         try {
@@ -27,6 +27,7 @@ class CustomResourceHandler(
             logger.log(e.message)
             eventPublisher.publish(response(Status.FAILED, 0, e.message), to = responseUrl)
         }
+        return "Done"
     }
 
     private fun Context.responseBuilderFor(request: CustomResourceRequest) = { status: Status, migrations: Int, errorMessage: String? ->
