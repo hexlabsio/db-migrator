@@ -20,6 +20,9 @@ class CustomResourceHandler(
     override fun Context.handle(request: CustomResourceRequest): String {
         val response = responseBuilderFor(request)
         val responseUrl = request.responseUrl
+        if (request.requestType == RequestType.Delete) {
+            eventPublisher.publish(response(Status.SUCCESS, 0, null), to = responseUrl)
+        }
         try {
             val result = migrate(request.asMigrationRequest())
             eventPublisher.publish(response(result.success, result.migrations, result.errorMessage), to = responseUrl)
