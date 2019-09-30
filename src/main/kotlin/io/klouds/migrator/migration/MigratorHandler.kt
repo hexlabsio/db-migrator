@@ -39,7 +39,6 @@ class MigratorHandler(
         private const val REGION = "eu-west-1"
         private const val MIGRATION_DIR = "/tmp/db/migration"
         private fun vpcS3Client() = AmazonS3Client.builder()
-            .withRegion(REGION)
             .enablePathStyleAccess()
             .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("com.amazonaws.eu-west-1.s3", REGION))
             .build()
