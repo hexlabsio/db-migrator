@@ -46,9 +46,10 @@ class CustomResourceHandler(
     }
 
     private fun Context.migrate(request: MigrationRequest): MigrationResponse {
-        logger.log("Migration Started")
+        logger.log("Invoking $MIGRATOR_FUNCTION")
+        logger.log(request.toString())
         val result = invoker.invoke(MIGRATOR_FUNCTION, request)
-        logger.log("Migration Complete")
+        logger.log("Migration Complete with result $result")
         return result
     }
 
