@@ -15,9 +15,9 @@ class MigratorHandlerTest {
         }
     }
 
-    class TestSecretFinder(var username: String = "") : SecretFinder {
+    class TestSecretFinder(var key: String = "") : SecretFinder {
         override fun secretFor(key: String): String {
-            this.username = key
+            this.key = key
             return "SuperSecret"
         }
     }
@@ -38,7 +38,7 @@ class MigratorHandlerTest {
     @Test
     fun `should download and invoke migrations with secret`() {
         val fakeResponse = MigrationResponse(Status.SUCCESS, 10)
-        val migrationRequest = MigrationRequest("Bucket", "Key", "DatabaseUrl", "Username")
+        val migrationRequest = MigrationRequest("Bucket", "Key", "DatabaseUrl", "Username", "db/location")
         val testDownloader = TestDownloader()
         val testSecretFinder = TestSecretFinder()
         val testMigrator = TestMigrator(fakeResponse)
@@ -51,7 +51,7 @@ class MigratorHandlerTest {
             expect("/tmp/db/migration") { destination }
         }
         with(testSecretFinder) {
-            expect("Username") { username }
+            expect("db/location") { key }
         }
         with(testMigrator) {
             expect("DatabaseUrl") { dataSourceUrl }

@@ -20,7 +20,7 @@ import io.kloudformation.unaryPlus
 class Stack : StackBuilder {
 
     override fun KloudFormation.create(args: List<String>) {
-        val bucket = bucket {
+        bucket {
             bucketName("hexlabs-db-migrations")
         }
         val securityGroup = securityGroup(+"Database Migrator SG") { vpcId(+"vpc-35efcd53") }
@@ -32,7 +32,7 @@ class Stack : StackBuilder {
                         policyDocument = policyDocument(id = "secret-access-policy", version = IamPolicyVersion.V2.version) {
                             statement(
                                     actions("secretsmanager:GetSecretValue"),
-                                    resource = resource(+"arn:aws:secretsmanager:" + awsRegion + ":" + awsAccountId + ":secret:db-*")
+                                    resource = resource(+"arn:aws:secretsmanager:" + awsRegion + ":" + awsAccountId + ":secret:db/*")
                             )
                         }
                 ), Policy(

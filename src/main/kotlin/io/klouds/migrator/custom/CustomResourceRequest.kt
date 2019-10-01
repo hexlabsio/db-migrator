@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class ResourceProperties(
     @JsonProperty("DatabaseUrl") val databaseUrl: String,
     @JsonProperty("DatabaseUser") val databaseUser: String,
+    @JsonProperty("DatabaseSecretLocation") val databaseSecretLocation: String,
     @JsonProperty("MigrationBucket") val migrationBucket: String,
     @JsonProperty("MigrationKey") val migrationKey: String
 )
