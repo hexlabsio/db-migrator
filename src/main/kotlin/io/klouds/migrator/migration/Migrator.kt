@@ -23,14 +23,17 @@ class FlywayMigrator(
         .load()
 
     override fun migrate(dataSourceUrl: String, username: String, password: String) =
-        flyway(dataSourceUrl, username, password).startMigration()
-                .let { (migrations, exception) ->
-                    if (exception != null) {
-                        MigrationResponse(Status.FAILED, migrations, exception.message)
-                    } else {
-                        MigrationResponse(Status.SUCCESS, migrations, "Invoked $migrations Migration(s)")
+        flyway(dataSourceUrl, username, password).run {
+            clean()
+            startMigration()
+                    .let { (migrations, exception) ->
+                        if (exception != null) {
+                            MigrationResponse(Status.FAILED, migrations, exception.message)
+                        } else {
+                            MigrationResponse(Status.SUCCESS, migrations, "Invoked $migrations Migration(s)")
+                        }
                     }
-                }
+        }
 
     override fun delete(dataSourceUrl: String, username: String, password: String): MigrationResponse {
         flyway(dataSourceUrl, username, password).clean()
@@ -44,4 +47,10 @@ class FlywayMigrator(
 
 private fun Flyway.startMigration(): Pair<Int, FlywayException?> {
     return try { migrate() to null } catch (e: FlywayException) { 0 to e }
+}
+
+fun main() {
+    FlywayMigrator(
+            migrationsDirectory = "/Users/chrisbarbour/Code/klouds-inventory/.circleci/db-migrations"
+    ).migrate("localhost:5432/postgres", "postgres", "postgres")
 }
