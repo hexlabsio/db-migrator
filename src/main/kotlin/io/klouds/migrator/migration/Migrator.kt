@@ -24,6 +24,7 @@ class FlywayMigrator(
 
     override fun migrate(dataSourceUrl: String, username: String, password: String) =
         flyway(dataSourceUrl, username, password).run {
+            clean()
             startMigration()
                     .let { (migrations, exception) ->
                         if (exception != null) {
