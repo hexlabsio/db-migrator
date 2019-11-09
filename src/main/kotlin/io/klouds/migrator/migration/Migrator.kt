@@ -24,7 +24,6 @@ class FlywayMigrator(
 
     override fun migrate(dataSourceUrl: String, username: String, password: String) =
         flyway(dataSourceUrl, username, password).run {
-            clean()
             startMigration()
                     .let { (migrations, exception) ->
                         if (exception != null) {
@@ -52,5 +51,5 @@ private fun Flyway.startMigration(): Pair<Int, FlywayException?> {
 fun main() {
     FlywayMigrator(
             migrationsDirectory = "/Users/chrisbarbour/Code/klouds-inventory/.circleci/db-migrations"
-    ).migrate("localhost:5432/postgres", "postgres", "postgres")
+    ).migrate("localhost:5432/postgres", "postgres", "postgres").information?.let { println(it) }
 }
