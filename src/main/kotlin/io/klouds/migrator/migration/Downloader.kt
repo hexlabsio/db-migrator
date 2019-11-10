@@ -14,7 +14,7 @@ import java.util.Base64
 import java.util.zip.ZipEntry
 
 interface Downloader {
-    fun download(source: String, name: String, destination: String)
+    fun download(source: String, name: String, destination: String, hash: String? = null)
 }
 
 class S3ZipDownloader(
@@ -49,10 +49,10 @@ class S3ZipDownloader(
         else FileOutputStream(File(destination, name)).use { it.write(bytes) }
     }
 
-    override fun download(source: String, name: String, destination: String) {
+    override fun download(source: String, name: String, destination: String, hash: String?) {
         with(File(destination)) {
             clean()
-            unzipper.unzip(s3ZipFrom(source, name), writeTo(this))
+            unzipper.unzip(s3ZipFrom(source, name, hash), writeTo(this))
         }
     }
 }

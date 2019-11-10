@@ -14,7 +14,7 @@ class MigratorHandler(
     override fun Context.handle(request: MigrationRequest): MigrationResponse {
         return try {
             logger.log("Downloading ${request.bucket}/${request.key} into $MIGRATIONS_DIR")
-            downloader.download(request.bucket, request.key, MIGRATIONS_DIR)
+            downloader.download(request.bucket, request.key, MIGRATIONS_DIR, request.hash)
             logger.log("Migrating database ${request.databaseUrl}")
             migrator.migrate(request.databaseUrl, request.username, secretFinder.secretFor(request.secretLocation), request.schemas, request.clean)
         } catch (exception: Exception) {
