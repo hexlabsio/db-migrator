@@ -8,7 +8,7 @@ import kotlin.test.expect
 class MigratorHandlerTest {
 
     class TestDownloader(var source: String = "", var name: String = "", var destination: String = "") : Downloader {
-        override fun download(source: String, name: String, destination: String, hash: String?) {
+        override fun download(source: String, name: String, destination: String) {
             this.source = source
             this.name = name
             this.destination = destination

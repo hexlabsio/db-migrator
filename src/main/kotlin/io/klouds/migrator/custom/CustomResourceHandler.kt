@@ -42,7 +42,7 @@ class CustomResourceHandler(
     }
 
     private fun CustomResourceRequest.asMigrationRequest() = with(resourceProperties) {
-        MigrationRequest(migrationBucket, migrationKey, databaseUrl, databaseUser, databaseSecretLocation, clean, schemas, hash)
+        MigrationRequest(migrationBucket, migrationKey, databaseUrl, databaseUser, databaseSecretLocation, clean, schemas)
     }
 
     private fun Context.migrate(request: MigrationRequest): MigrationResponse {
