@@ -23,14 +23,10 @@ class MigratorHandlerTest {
     }
 
     class TestMigrator(private val fakeResponse: MigrationResponse, var dataSourceUrl: String = "", var username: String = "", var pssword: String = "") : Migrator<MigrationResponse> {
-        override fun migrate(dataSourceUrl: String, username: String, password: String): MigrationResponse {
+        override fun migrate(dataSourceUrl: String, username: String, password: String, schemas: List<String>, clean: Boolean): MigrationResponse {
             this.dataSourceUrl = dataSourceUrl
             this.username = username
             this.pssword = password
-            return fakeResponse
-        }
-
-        override fun delete(dataSourceUrl: String, username: String, password: String): MigrationResponse {
             return fakeResponse
         }
     }

@@ -42,7 +42,7 @@ class CustomResourceHandler(
     }
 
     private fun CustomResourceRequest.asMigrationRequest() = with(resourceProperties) {
-        MigrationRequest(migrationBucket, migrationKey, databaseUrl, databaseUser, databaseSecretLocation, requestType == RequestType.Delete)
+        MigrationRequest(migrationBucket, migrationKey, databaseUrl, databaseUser, databaseSecretLocation, clean, schemas, hash)
     }
 
     private fun Context.migrate(request: MigrationRequest): MigrationResponse {

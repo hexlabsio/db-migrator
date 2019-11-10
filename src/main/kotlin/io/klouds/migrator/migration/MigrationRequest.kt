@@ -6,5 +6,7 @@ data class MigrationRequest(
     val databaseUrl: String,
     val username: String,
     val secretLocation: String,
-    val clean: Boolean = false
+    val clean: Boolean = false,
+    val schemas: List<String> = emptyList(),
+    val hash: String? = null
 )

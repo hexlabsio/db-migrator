@@ -7,7 +7,10 @@ data class ResourceProperties(
     @JsonProperty("DatabaseUser") val databaseUser: String,
     @JsonProperty("DatabaseSecretLocation") val databaseSecretLocation: String,
     @JsonProperty("MigrationBucket") val migrationBucket: String,
-    @JsonProperty("MigrationKey") val migrationKey: String
+    @JsonProperty("MigrationKey") val migrationKey: String,
+    @JsonProperty("Clean") val clean: Boolean = false,
+    @JsonProperty("Schemas") val schemas: List<String> = emptyList(),
+    @JsonProperty("Hash") val hash: String? = null
 )
 
 data class CustomResourceRequest(
