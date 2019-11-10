@@ -10,6 +10,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.lang.RuntimeException
 import java.security.MessageDigest
+import java.util.Base64
 import java.util.zip.ZipEntry
 
 interface Downloader {
@@ -32,7 +33,7 @@ class S3ZipDownloader(
         val content = s3Client.getObject(bucket, key).objectContent
         return if (hash != null) {
             val bytes = content.readBytes()
-            val digest = String(MessageDigest.getInstance("SHA-256").digest(content.readBytes()))
+            val digest = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA-256").digest(content.readBytes()))
             println(hash)
             println(digest)
             if (hash == digest) {
