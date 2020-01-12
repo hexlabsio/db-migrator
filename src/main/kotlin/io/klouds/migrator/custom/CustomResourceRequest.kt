@@ -3,11 +3,11 @@ package io.klouds.migrator.custom
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ResourceProperties(
-    @JsonProperty("DatabaseUrl") val databaseUrl: String,
-    @JsonProperty("DatabaseUser") val databaseUser: String,
-    @JsonProperty("DatabaseSecretLocation") val databaseSecretLocation: String,
-    @JsonProperty("MigrationBucket") val migrationBucket: String,
-    @JsonProperty("MigrationKey") val migrationKey: String,
+    @JsonProperty("DatabaseUrl") val databaseUrl: String? = null,
+    @JsonProperty("DatabaseUser") val databaseUser: String? = null,
+    @JsonProperty("DatabaseSecretLocation") val databaseSecretLocation: String? = null,
+    @JsonProperty("MigrationBucket") val migrationBucket: String? = null,
+    @JsonProperty("MigrationKey") val migrationKey: String? = null,
     @JsonProperty("Clean") val clean: Boolean = false,
     @JsonProperty("Schemas") val schemas: List<String> = emptyList()
 )
